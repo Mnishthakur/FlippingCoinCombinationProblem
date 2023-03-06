@@ -1,42 +1,54 @@
 num_flips=100
 
-# Initialize the dictionary to store the doublet combinations
-declare -A doublets=([HH]=0 [HT]=0 [TH]=0 [TT]=0)
+# Initialize the dictionary to store the triplet combinations
+declare -A triplets=([HHH]=0 [HHT]=0 [HTH]=0 [THH]=0 [HTT]=0 [THT]=0 [TTH]=0 [TTT]=0)
 
-# Loop through the flips and count the doublet combinations
+# Loop through the flips and count the triplet combinations
 for (( i=1; i<=$num_flips; i++ ))
 do
-    # Generate a random number between 0 and 3
-    random_number=$((RANDOM % 4))
+    # Generate a random number between 0 and 7
+    random_number=$((RANDOM % 8))
 
     # Determine the result of the first coin
-    if [[ $random_number -eq 0 || $random_number -eq 1 ]]; then
+    if [[ $random_number -eq 0 || $random_number -eq 1 || $random_number -eq 2 ]]; then
         coin1="H"
     else
         coin1="T"
     fi
 
-    # Generate another random number between 0 and 1
-    random_number=$((RANDOM % 2))
-
-    # Determine the result of the second coin based on the result of the first coin
-    if [[ $coin1 == "H" && $random_number -eq 0 ]]; then
-        doublet="HH"
-    elif [[ $coin1 == "H" && $random_number -eq 1 ]]; then
-        doublet="HT"
-    elif [[ $coin1 == "T" && $random_number -eq 0 ]]; then
-        doublet="TH"
+    # Determine the result of the second coin
+    if [[ $random_number -eq 0 || $random_number -eq 1 || $random_number -eq 3 || $random_number -eq 4 ]]; then
+        coin2="H"
     else
-        doublet="TT"
+        coin2="T"
     fi
 
-    # Increment the count of the doublet combination in the dictionary
-    ((doublets[$doublet]++))
+    # Determine the result of the third coin based on the results of the first two coins
+    if [[ $coin1 == "H" && $coin2 == "H" ]]; then
+        triplet="HHH"
+    elif [[ $coin1 == "H" && $coin2 == "T" ]]; then
+        triplet="HHT"
+    elif [[ $coin1 == "T" && $coin2 == "H" ]]; then
+        triplet="THH"
+    elif [[ $coin1 == "H" && $coin2 == "T" ]]; then
+        triplet="HTH"
+    elif [[ $coin1 == "T" && $coin2 == "T" ]]; then
+        triplet="TTT"
+    elif [[ $coin1 == "H" && $coin2 == "T" ]]; then
+        triplet="HTT"
+    elif [[ $coin1 == "T" && $coin2 == "H" ]]; then
+        triplet="THT"
+    else
+        triplet="TTH"
+    fi
+
+    # Increment the count of the triplet combination in the dictionary
+    ((triplets[$triplet]++))
 done
 
-# Calculate the percentage of each doublet combination
-for doublet in "${!doublets[@]}"
+# Calculate the percentage of each triplet combination
+for triplet in "${!triplets[@]}"
 do
-    percentage=$(bc <<< "scale=2; ${doublets[$doublet]} / $num_flips * 100")
-    echo "Percentage of $doublet: $percentage%"
+    percentage=$(bc <<< "scale=2; ${triplets[$triplet]} / $num_flips * 100")
+    echo "Percentage of $triplet: $percentage%"
 done
